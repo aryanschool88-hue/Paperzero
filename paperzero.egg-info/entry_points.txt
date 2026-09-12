@@ -1,0 +1,2 @@
+[console_scripts]
+paperzero = paperzero_engine.uci:main

@@ -1,0 +1,14 @@
+LICENSE
+README.md
+pyproject.toml
+paperzero.egg-info/PKG-INFO
+paperzero.egg-info/SOURCES.txt
+paperzero.egg-info/dependency_links.txt
+paperzero.egg-info/entry_points.txt
+paperzero.egg-info/requires.txt
+paperzero.egg-info/top_level.txt
+paperzero_engine/__init__.py
+paperzero_engine/evaluation.py
+paperzero_engine/search.py
+paperzero_engine/uci.py
+tests/test_engine.py

@@ -1,0 +1,8 @@
+Metadata-Version: 2.4
+Name: paperzero
+Version: 0.1.0
+Summary: A lightweight chess engine growing toward a Stockfish-style architecture
+Requires-Python: >=3.11
+License-File: LICENSE
+Requires-Dist: chess>=1.11
+Dynamic: license-file
