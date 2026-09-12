@@ -1,0 +1,14 @@
+.venv/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+pgn/stockfish-selfplay/
+pgn/online/
+*.nnue.npz
+online-*.nnue.npz
+paperzero-*.pgn
+*-smoke-match.pgn
+pgn/*smoke/

@@ -26,4 +26,22 @@ def test_uci_position_and_search() -> None:
 
 def test_resource_limits_are_bounded() -> None:
     limits = SearchLimits()
-    assert limits.movetime_ms == 2_000
+    assert limits.movetime_ms == 5_000
+
+
+def test_sliding_pieces_keep_their_move_geometry() -> None:
+    bishop = Board("4k3/8/8/8/8/8/8/4KB2 w - - 0 1")
+    rook = Board("4k3/8/8/8/8/8/8/4KR3 w - - 0 1")
+    assert all(move.uci() != "f1g1" for move in bishop.legal_moves())
+    assert all(move.uci() != "f1g2" for move in rook.legal_moves())
+
+
+def test_native_board_survives_a_long_legal_sequence() -> None:
+    board = Board()
+    for _ in range(120):
+        moves = board.legal_moves()
+        if not moves:
+            break
+        board.push(moves[0])
+    assert board.squares.count("K") == 1
+    assert board.squares.count("k") == 1

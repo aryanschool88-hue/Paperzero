@@ -4,11 +4,13 @@ import sys
 
 from .board import Board
 from .search import SearchLimits, Searcher
+from .search import MAX_SEARCH_MS
 
 
 class UCIEngine:
     def __init__(self) -> None:
         self.board = Board()
+        self.nnue = None
         self.searcher = Searcher()
 
     def handle(self, line: str) -> bool:
@@ -19,12 +21,19 @@ class UCIEngine:
         if command == "uci":
             print("id name PaperZero")
             print("id author PaperZero contributors")
+            print("option name NNUEFile type string default")
+            print("option name Hash type spin default 32 min 1 max 512")
+            print("option name Threads type spin default 1 min 1 max 1")
             print("uciok", flush=True)
         elif command == "isready":
             print("readyok", flush=True)
         elif command == "ucinewgame":
             self.board.reset()
-            self.searcher = Searcher()
+            self.searcher = Searcher(self.nnue)
+        elif command == "setoption":
+            self._set_option(tokens[1:])
+        elif command == "stop":
+            pass
         elif command == "position":
             self._set_position(tokens[1:])
         elif command == "go":
@@ -49,6 +58,19 @@ class UCIEngine:
             for san_move in tokens[move_start + 1:]:
                 self.board.push_uci(san_move)
 
+    def _set_option(self, tokens: list[str]) -> None:
+        if "name" not in tokens or "value" not in tokens:
+            return
+        name_end = tokens.index("value")
+        name = " ".join(tokens[tokens.index("name") + 1:name_end])
+        value = " ".join(tokens[name_end + 1:])
+        if name.lower() == "nnuefile":
+            from .nnue import NnueModel
+            self.nnue = NnueModel.load(value)
+            self.searcher = Searcher(self.nnue)
+        elif name.lower() == "clear hash":
+            self.searcher = Searcher(self.nnue)
+
     def _go(self, tokens: list[str]) -> None:
         depth = 4
         movetime = None
@@ -56,6 +78,11 @@ class UCIEngine:
             depth = int(tokens[tokens.index("depth") + 1])
         if "movetime" in tokens:
             movetime = int(tokens[tokens.index("movetime") + 1])
+        if movetime is None and "wtime" in tokens and "btime" in tokens:
+            remaining = int(tokens[tokens.index("wtime") + 1]) if self.board.turn == "w" else int(tokens[tokens.index("btime") + 1])
+            increment_key = "winc" if self.board.turn == "w" else "binc"
+            increment = int(tokens[tokens.index(increment_key) + 1]) if increment_key in tokens else 0
+            movetime = min(MAX_SEARCH_MS, max(50, remaining // 25 + increment))
         move = self.searcher.best_move(
             self.board, SearchLimits(depth=depth, movetime_ms=movetime)
         )

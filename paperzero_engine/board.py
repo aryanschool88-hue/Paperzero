@@ -173,7 +173,7 @@ class Board:
                     result.extend(self._castle_moves(color))
             else:
                 for slider, offsets in SLIDERS:
-                    if kind != slider and slider != "Q":
+                    if kind != "Q" and kind != slider:
                         continue
                     for offset in offsets:
                         target = source + offset
